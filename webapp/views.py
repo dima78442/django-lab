@@ -5,8 +5,10 @@ from rest_framework import generics
 from .serializers import UserSerializer, GroupSerializer
 from rest_framework_swagger.views import get_swagger_view
 from django.conf.urls import url
-from .models import Person, Phone
+from .models import Person, Phone, ConnectedUsers
 from .serializers import PersonSerializer, PhoneSerializers
+from django.http import HttpResponse
+from django.shortcuts import render
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -47,3 +49,32 @@ class PhoneViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticated
     ]
     serializer_class = PhoneSerializers
+
+
+def index(request):
+    persons = [person for person in Person.objects.all()]
+    return render(request, 'index.html', {
+        'persons': persons
+    })
+
+
+def person_info(request, person_id):
+    # Send article by id to user
+    person = Person.objects.get(id=person_id)
+    phones = [phone for phone in Phone.objects.filter(person_id=person_id)]
+    if person:
+        return render(request, 'person_info.html', {
+            'person_id': person_id,
+            'phones': phones,
+            'person': person
+        })
+    else:
+        return HttpResponse('Wrong person id')
+
+
+def users_online(request):
+    if request.user.is_authenticated:
+        connected_users = [user for user in ConnectedUsers.objects.all()]
+        return render(request, 'online.html', {
+            'connected_users': connected_users
+        })

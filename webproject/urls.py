@@ -17,6 +17,7 @@ urlpatterns = [
     path('account/register', views.UserCreate.as_view()),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('lab/', include('webapp.urls')),
     path('openapi',
          get_schema_view(
             title="webapp",

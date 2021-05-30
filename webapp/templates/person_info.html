@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Lab</title>
+</head>
+<body>
+    <h1>{{person.first_name}} {{person.last_name}}</h1>
+    <p>Address: {{person.address}}</p>
+    <p>Birth date: {{person.birth_date}}</p>
+    <table id=phones> 
+        <thead>
+            <tr>
+                <th>Phone number</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for phone in phones %}
+            <tr>
+                <td>{{phone.phone_number}}</td>
+                <td>{{phone.active}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br/>
+    <p>Add phone</p>
+    <form id="addPhoneFrom" name="addPhoneFrom" >
+        <label for="phone_number">Phone number: </label><input type="text" name="phone_number" id="phone_number" value=""><br />
+        <label for="active">Active: </label><input type="checkbox" id="active" name="active" value="active"><br />
+        <input id="submit" type="button" value="Save">
+        {{ person_id|json_script:"person-id" }}
+    </form>    
+
+    <script>
+        const person_id = JSON.parse(document.getElementById('person-id').textContent);
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/lab/'
+            + person_id
+            + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data)
+            document.querySelector('#phones tbody').innerHTML = document.querySelector('#phones tbody').innerHTML 
+            + '<tr><td>' + data.phone_number +'</td><td>' + data.active + '</td></tr>'
+        };
+
+        chatSocket.onclose = function(e) {
+
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#submit').onclick = function(e) {
+            const $phone_number = document.querySelector('#phone_number');
+            const $active = document.querySelector('#active');
+            chatSocket.send(JSON.stringify({
+                'person_id': person_id,
+                'phone_number': $phone_number.value,
+                'active': $active.checked ,
+            }));
+            $phone_number.value = '';
+            $active.checked  = false;
+        }
+    </script>
+</body>
+</html> 

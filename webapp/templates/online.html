@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users Online</title>
+</head>
+<body>
+<h2>Currently connected</h2>
+<table>
+    <thead>
+        <tr><th>User</th> <th>Connected Time</th></tr>
+    </thead>
+    <tbody>
+    {% for user in connected_users %}
+        <tr>
+            <td>{{user.first_name}}</td> <td>{{user.connected}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>  
