@@ -75,7 +75,10 @@ WSGI_APPLICATION = 'webproject.wsgi.application'
 ASGI_APPLICATION = "webproject.asgi.application"
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
     }
 }
 
@@ -144,3 +147,11 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_HOST = "smtp.ukr.net"
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = "dima.django.lab3@ukr.net"
+EMAIL_HOST_PASSWORD = "password"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

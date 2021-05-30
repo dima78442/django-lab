@@ -54,3 +54,48 @@ class ChatConsumer(WebsocketConsumer):
         print(entity_data)
         # Send message to WebSocket
         self.send(text_data=json.dumps(entity_data))
+
+
+class TasksConsumer(WebsocketConsumer):
+    def connect(self):
+        self.group_name = "finished_tasks"
+
+        # Join room group
+        async_to_sync(self.channel_layer.group_add)(
+            self.group_name,
+            self.channel_name
+        )
+        print("connect")
+        self.accept()
+
+    def disconnect(self, close_code):
+        # Leave room group
+        print("disconnect")
+        async_to_sync(self.channel_layer.group_discard)(
+            self.group_name,
+            self.channel_name
+        )
+
+    def receive(self, text_data):
+        print("receive")
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+        print(text_data_json)
+        # Send message to room group
+        async_to_sync(self.channel_layer.group_send)(
+            self.group_name,
+            {
+                'type': 'task_message',
+                'message': message
+            }
+        )
+
+    def task_message(self, event):
+        print("task_message")
+        message = event['message']
+        print(message)
+
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'message': message
+        }))
